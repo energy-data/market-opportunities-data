@@ -1,0 +1,54 @@
+#!/bin/bash
+
+# This script downloads a zipped shapefile and converts it to
+# Vector Tiles
+
+TMP_DIR="tmp"
+EXP_DIR="data"
+SRC_URL="http://www.infrastructureafrica.org/system/files/library/2012/03/AICD_ALL%20Countries%20Electricity%20Transmission%20Network.zip"
+DL_FILE="download.zip"
+SRC_FILE="AICD_ALL Countries Electricity Transmission Network.shp"
+
+
+error()
+{
+  echo >&2 $*
+  exit 1
+}
+
+# for portability and just in case which is not available
+typeset -r cmd_which="/usr/bin/which"
+[[ -x $cmd_which ]] || error "$cmd_which command not found"
+
+# check that every command is available and executable
+for command in unzip ogr2ogr tippecanoe wget
+do
+  typeset -r cmd_$command=$($cmd_which $command)
+  [[ -x $(eval echo \$cmd_$command) ]] || error "$cmd_$command command not found"
+done
+
+
+# The folder should not contain the tmp dir
+[[ ! -d $TMP_DIR ]] || error "It seems you already have a tmp directory. Remove it and run this script again."
+mkdir $TMP_DIR
+
+[[ ! -f $EXP_DIR/data.mbtiles ]] || error "You already have a data/data.mbtiles file. Remove it and run this script again."
+mkdir -p $EXP_DIR
+
+
+# Download file and write to tmp directory
+echo "Downloading the file..."
+$cmd_wget -q $SRC_URL -O $TMP_DIR/$DL_FILE
+
+# Unzip, files will be overwritten without prompt
+$cmd_unzip -q -o $TMP_DIR/$DL_FILE -d $TMP_DIR
+
+# Convert to geojson. If the geojson already exists, it will NOT be overwritten
+echo "Convert Shapefile to GeoJSON"
+$cmd_ogr2ogr -f "GeoJSON" $EXP_DIR/data.geojson "$TMP_DIR/$SRC_FILE"
+
+# Tippecanoe 'em
+echo "Convert GeoJSON to mbtiles"
+$cmd_tippecanoe -o $EXP_DIR/data.mbtiles $EXP_DIR/data.geojson
+
+rm -r $TMP_DIR
