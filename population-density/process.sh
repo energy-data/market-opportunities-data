@@ -9,8 +9,6 @@
 TMP_DIR="tmp"
 EXP_DIR="data"
 SRC_FILE="africa2010ppp.tif"
-DEST_FILE="data.mbtiles"
-
 
 error()
 {
@@ -52,9 +50,9 @@ $cmd_gdalwarp africa2010ppp.tif $TMP_DIR/resampled-avg.tif -r average -t_srs "+p
 gdal_calc.py -A $TMP_DIR/resampled-avg.tif --outfile=$TMP_DIR/resampled-total.tif --calc="A*100" --NoDataValue=0
 
 # Create a vector from the TIF with total population per 100km2
-gdal_polygonize.py $TMP_DIR/resampled-total.tif -f "GeoJSON" $TMP_DIR/resampled.geojson fieldname "pop100km2"
+gdal_polygonize.py $TMP_DIR/resampled-total.tif -f "ESRI Shapefile" $TMP_DIR/resampled.shp fieldname "pop100km2"
 
 # Ensure that the correct projection is set
-$cmd_ogr2ogr -f "GeoJSON" $EXP_DIR/data.geojson $TMP_DIR/resampled.geojson -s_srs "+proj=aea +lat_1=20 +lat_2=-23 +lat_0=0 +lon_0=25 +x_0=0 +y_0=0 +datum=WGS84 +units=m +no_defs" -t_srs EPSG:4326
+$cmd_ogr2ogr -f "GeoJSON" $EXP_DIR/data.geojson $TMP_DIR/resampled.shp -s_srs "+proj=aea +lat_1=20 +lat_2=-23 +lat_0=0 +lon_0=25 +x_0=0 +y_0=0 +datum=WGS84 +units=m +no_defs" -t_srs EPSG:4326
 
 rm -r $TMP_DIR
