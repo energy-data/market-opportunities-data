@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # This script downloads a zipped shapefile and converts it to
-# Vector Tiles
+# geojson
 
 TMP_DIR="tmp"
 EXP_DIR="data"
@@ -21,6 +21,8 @@ typeset -r cmd_which="/usr/bin/which"
 [[ -x $cmd_which ]] || error "$cmd_which command not found"
 
 # check that every command is available and executable
+# this is where a $cmd_foo var will be created for each command
+# tar would be called with $cmd_tar
 for command in unzip ogr2ogr tippecanoe wget
 do
   typeset -r cmd_$command=$($cmd_which $command)
@@ -46,9 +48,5 @@ $cmd_unzip -q -o $TMP_DIR/$DL_FILE -d $TMP_DIR
 # Convert to geojson. If the geojson already exists, it will NOT be overwritten
 echo "Convert Shapefile to GeoJSON"
 $cmd_ogr2ogr -f "GeoJSON" $EXP_DIR/data.geojson "$TMP_DIR/$SRC_FILE"
-
-# Tippecanoe 'em
-echo "Convert GeoJSON to mbtiles"
-$cmd_tippecanoe -o $EXP_DIR/data.mbtiles $EXP_DIR/data.geojson
 
 rm -r $TMP_DIR
