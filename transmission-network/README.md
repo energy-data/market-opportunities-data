@@ -1,6 +1,6 @@
 ## Transmission network data
 
-Run `$ bash process.sh` to download the data and generate vector tiles.
+Run `$ bash process.sh` to download the data and generate a geojson.
 
 ### Todo
 

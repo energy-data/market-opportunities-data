@@ -2,7 +2,7 @@
 
 # This script processes Worldpop data for Africa. It down-samples it
 # to a 100km2 grid and averages the population estimate (pop per 100km2)
-# It then vectorizes the data and generates vector tiles.
+# It then vectorizes the data and generates a geojson.
 #
 # Requires the $SRC_FILE to be present in the root
 
@@ -23,6 +23,8 @@ typeset -r cmd_which="/usr/bin/which"
 [[ -x $cmd_which ]] || error "$cmd_which command not found"
 
 # check that every command is available and executable
+# this is where a $cmd_foo var will be created for each command
+# tar would be called with $cmd_tar
 for command in ogr2ogr tippecanoe gdalwarp
 do
   typeset -r cmd_$command=$($cmd_which $command)
@@ -54,9 +56,5 @@ gdal_polygonize.py $TMP_DIR/resampled-total.tif -f "GeoJSON" $TMP_DIR/resampled.
 
 # Ensure that the correct projection is set
 $cmd_ogr2ogr -f "GeoJSON" $EXP_DIR/data.geojson $TMP_DIR/resampled.geojson -s_srs "+proj=aea +lat_1=20 +lat_2=-23 +lat_0=0 +lon_0=25 +x_0=0 +y_0=0 +datum=WGS84 +units=m +no_defs" -t_srs EPSG:4326
-
-# Tippecanoe the thing
-echo "Convert GeoJSON to mbtiles"
-$cmd_tippecanoe -o $EXP_DIR/data.mbtiles $EXP_DIR/data.geojson -P
 
 rm -r $TMP_DIR
