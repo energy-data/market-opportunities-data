@@ -1,0 +1,1 @@
+`ne_10m_admin0_ssa.geojson` generated from [Natural Earth Admin 0](http://www.naturalearthdata.com/downloads/10m-cultural-vectors/) shapefile, reducing properties and countries to Sub-Saharan Africa.
