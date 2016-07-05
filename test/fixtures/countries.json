@@ -1,0 +1,71 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "ISO_A3": "nig"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              2,
+              4
+            ],
+            [
+              2,
+              6
+            ],
+            [
+              4,
+              6
+            ],
+            [
+              4,
+              4
+            ],
+            [
+              2,
+              4
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ISO_A3": "tza"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              0,
+              4
+            ],
+            [
+              0,
+              6
+            ],
+            [
+              2,
+              6
+            ],
+            [
+              2,
+              4
+            ],
+            [
+              0,
+              4
+            ]
+          ]
+        ]
+      }
+    }
+  ]
+}
