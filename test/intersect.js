@@ -1,8 +1,8 @@
 const test = require('ava')
-const generateIntersect = require('../tools/lib/generate-intersect.js')
+const intersect = require('../tools/lib/intersect.js')
 const countries = require('./fixtures/countries.json')
 
-test('generateIntersect handles polygon inside polygon', t => {
+test('intersect.generate handles polygon inside polygon', t => {
   let data = {
     'type': 'Feature',
     'properties': {},
@@ -15,7 +15,7 @@ test('generateIntersect handles polygon inside polygon', t => {
     {
       'type': 'Feature',
       'properties': {
-        'id': 'nig'
+        'iso': 'nig'
       },
       'geometry': {
         'type': 'Polygon',
@@ -23,10 +23,10 @@ test('generateIntersect handles polygon inside polygon', t => {
       }
     }
   ]
-  t.deepEqual(generateIntersect(data, countries), result)
+  t.deepEqual(intersect.generate(data, countries, [ 'nig' ]), result)
 })
 
-test('generateIntersect handles no match inside polygon', t => {
+test('intersect.generate handles no match inside polygon', t => {
   let data = {
     'type': 'Feature',
     'properties': {},
@@ -35,10 +35,10 @@ test('generateIntersect handles no match inside polygon', t => {
       'coordinates': [[[5, 31], [5, 41], [6, 41], [6, 31], [5, 31]]]
     }
   }
-  t.deepEqual(generateIntersect(data, countries), [])
+  t.deepEqual(intersect.generate(data, countries), [])
 })
 
-test('generateIntersect properly slices a polygon into two', t => {
+test('intersect.generate properly slices a polygon into two', t => {
   let data = {
     'type': 'Feature',
     'properties': {
@@ -54,7 +54,7 @@ test('generateIntersect properly slices a polygon into two', t => {
       'type': 'Feature',
       'properties': {
         'density': 0.5,
-        'id': 'nig'
+        'iso': 'nig'
       },
       'geometry': {
         'type': 'Polygon',
@@ -65,7 +65,7 @@ test('generateIntersect properly slices a polygon into two', t => {
       'type': 'Feature',
       'properties': {
         'density': 0.5,
-        'id': 'tza'
+        'iso': 'tza'
       },
       'geometry': {
         'type': 'Polygon',
@@ -73,5 +73,5 @@ test('generateIntersect properly slices a polygon into two', t => {
       }
     }
   ]
-  t.deepEqual(generateIntersect(data, countries), result)
+  t.deepEqual(intersect.generate(data, countries, [ 'NIG', 'TZA' ]), result)
 })
