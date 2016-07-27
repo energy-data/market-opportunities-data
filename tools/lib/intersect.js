@@ -2,7 +2,7 @@
 
 const turf = require('turf')
 
-// Checks if a feature intersect with items in a rbush tree (countryIndex)
+// Checks if a feature intersects with items in a rbush tree (countryIndex)
 // Returns array of matching ISO codes, or an empty array if no match
 module.exports.check = function (feature, countryIndex) {
   let fBbox = turf.bbox(feature)
