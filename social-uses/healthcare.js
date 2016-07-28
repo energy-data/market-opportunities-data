@@ -17,7 +17,7 @@ let options = {
       way[amenity=hospital](${bboxOverpass});
       node[amenity=doctors](${bboxOverpass});
       way[amenity=doctors](${bboxOverpass});>;);out body;`,
-  'fn': 'data/healthcare.geojson',
+  'filename': 'data/healthcare.geojson',
   'osmTags': ['amenity', 'name']
 }
 
