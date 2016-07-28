@@ -17,11 +17,13 @@ const intersect = require('./lib/intersect.js')
 const spatialIndex = require('./lib/spatial-index.js')
 const countries = require('../lib/boundaries/ne_10m_admin0_ssa.json')
 
-const addIso = function (srcData) {
+const addIso = function (srcData, destPath) {
   // Some simple counters to keep track of progress
   var featsProcessed = 0
   var featsCreated = 0
   var start = Date.now()
+
+  var writePath = destPath || './export.json'
 
   // Generate a spatial index of the countries' bbox with rbush
   var countryIndex = spatialIndex(countries)
@@ -40,21 +42,21 @@ const addIso = function (srcData) {
       }
     }
     if (featsProcessed % 1000 === 0) {
-      console.log(`${featsProcessed} features processed (${featsCreated} new)`)
+      console.log(`${featsProcessed} features processed, ${featsCreated} are within the desired bbox`)
     }
     featsProcessed++
     callback()
   })
   var stringify = geojsonStream.stringify()
-  var write = fs.createWriteStream('./export.json')
+  var write = fs.createWriteStream(writePath)
 
-  console.log('Starting to process.')
+  console.log('Adding the ISO codes to each feature.')
   read.pipe(parse)
     .pipe(transform)
     .pipe(stringify)
     .pipe(write)
     .on('finish', () => {
-      console.log('Finished in: ', prettyMs(Date.now() - start))
+      console.log('Adding the ISO codes finished in: ', prettyMs(Date.now() - start))
     })
 }
 

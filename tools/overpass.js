@@ -29,11 +29,9 @@ module.exports.query = function (query) {
 module.exports.bboxSSA = function () {
   const countries = require('../lib/boundaries/ne_10m_admin0_ssa.json')
 
-  // Fetch the bounding box of interest
-  // Turf returns: [w,s,e,n] http://turfjs.org/docs/#bbox
+  // Fetch the bbox of interest. Turf returns: [w,s,e,n]
   let bbox = turf.bbox(countries)
 
-  // Store the bbox as a string
-  // Overpass QL expects: (s,w,n,e)
+  // Return bbox as a string. Overpass QL expects: (s,w,n,e)
   return `${bbox[1]},${bbox[0]},${bbox[3]},${bbox[2]}`
 }
