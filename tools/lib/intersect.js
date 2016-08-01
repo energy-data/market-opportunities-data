@@ -2,8 +2,15 @@
 
 const turf = require('turf')
 
-// Checks if a feature intersect with items in a rbush tree (countryIndex)
-// Returns array of matching ISO codes, or an empty array if no match
+/**
+ * Checks if a feature intersects with items in a rbush tree
+ *
+ * @param {Object} feature A GeoJSON feature
+ * @param {Object} countryIndex A rbush tree
+ *
+ * @return {Array} An array of matching ISO codes, or empty if no match
+ */
+
 module.exports.check = function (feature, countryIndex) {
   let fBbox = turf.bbox(feature)
   let match = countryIndex.search({
@@ -15,9 +22,18 @@ module.exports.check = function (feature, countryIndex) {
   return match.map(function (m) { return m.id })
 }
 
-// Intersect a geojson feature with matching country polygons
-// Returns an array of the intersected polygons, each retaining the props from
-// the original feature, plus the country's ISO code
+/**
+ * Intersect a GeoJSON feature with a set of polygons
+ *
+ * @param {Object} feature A GeoJSON feature
+ * @param {Object} countries A GeoJSON object with polygons
+ * @param {Array} matchingIso An array with ISO codes that determines which
+ * polygons the feature will be intersected with
+ *
+ * @return {Array} An array of intersected features, each retaining the props
+ * from the original feature, plus the country's ISO code
+ */
+
 module.exports.generate = function (feature, countries, matchingIso) {
   let newFeats = []
 
@@ -27,7 +43,14 @@ module.exports.generate = function (feature, countries, matchingIso) {
       return c.properties.ISO_A3.toLowerCase() === matchingIso[i].toLowerCase()
     })[0]
 
-    let intersection = turf.intersect(country, feature)
+    try {
+      var intersection = turf.intersect(country, feature)
+    } catch (e) {
+      console.error(e)
+      console.error(feature.properties)
+      console.error(' ')
+      continue
+    }
 
     if (intersection) {
       // The new object has all props from original feature

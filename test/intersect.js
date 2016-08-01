@@ -75,3 +75,15 @@ test('intersect.generate properly slices a polygon into two', t => {
   ]
   t.deepEqual(intersect.generate(data, countries, [ 'NIG', 'TZA' ]), result)
 })
+
+test('intersect.generate ignores features with an invalid geometry', t => {
+  let data = {
+    'type': 'Feature',
+    'properties': {},
+    'geometry': {
+      'type': 'Polygon',
+      'coordinates': [[[2, 7.5], [2, 5.5], [1, 5.5], [1, 5.5], [2, 5.5]]]
+    }
+  }
+  t.deepEqual(intersect.generate(data, countries, [ 'BFA' ]), [])
+})

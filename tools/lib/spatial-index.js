@@ -3,7 +3,13 @@
 const rbush = require('rbush')
 const turf = require('turf')
 
-// Generate a spatial index for a set of countries
+/**
+ * Generate a spatial index for a set of countries
+ *
+ * @param {Object} countries A GeoJSON object with polygons
+ *
+ * @return {Object} A rbush tree
+ */
 module.exports = function (countries) {
   let a = []
   for (var c in countries.features) {
