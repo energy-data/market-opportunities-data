@@ -1,19 +1,19 @@
 'use strict'
 
 const fs = require('fs')
-const _ = require('lodash')
 const path = require('path')
 
 const addIso = require('./add-iso.js')
 const overpass = require('./overpass.js')
+const utils = require('./lib/utils.js')
 
 /**
  * Fetch OSM data and prepare it for use in the IFC Market Opportunities tool
  *
  * @param {Object} options An object with the configuration options for the query
  * @param {string} options.query The Overpass QL query
- * @param {string} options.filename The file to store the processed GeoJSON data in. Relative to the file that calls this function
- * @param {Array} [options.osmTags] An array of OSM tags to store in the properties object of each feature
+ * @param {string} options.filename The name of the file to store the processed GeoJSON data in. Relative to the path of the file that calls this function
+ * @param {Array} [options.filterTags] An array of OSM tags used to filter the properties object of each feature. If an empty array is specified, the properties object will be returned empty. If undefined, the properties are not filtered and left untouched.
  * @param {string} dir The absolute path to the file that calls this function
  *
  * Example options object:
@@ -33,11 +33,9 @@ module.exports = function (options, dir) {
       process.exit(1)
     })
     .then(function (data) {
-      // Filter the properties object so it only retains the desired osmTags
-      data.features = _.map(data.features, o => {
-        o.properties = _.pick(o.properties, options.osmTags)
-        return o
-      })
+      if (options.filterTags) {
+        data = utils.filterProps(data, options.filterTags)
+      }
       return data
     })
     .catch(function (err) {
