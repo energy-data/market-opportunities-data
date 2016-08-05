@@ -20,7 +20,8 @@ let options = {
       node[amenity=university](${bboxOverpass});
       way[amenity=university](${bboxOverpass});>;);out body;`,
   'filename': 'data/education.geojson',
-  'filterTags': ['amenity', 'name']
+  'filterTags': ['amenity', 'name'],
+  'enforceType': 'point'
 }
 
 osmData(options, __dirname)
