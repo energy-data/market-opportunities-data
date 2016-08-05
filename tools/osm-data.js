@@ -38,6 +38,12 @@ module.exports = function (options, dir) {
       }
       return data
     })
+    .then(function (data) {
+      if (options.enforceType === 'point') {
+        data = utils.convertToPoints(data)
+      }
+      return data
+    })
     .catch(function (err) {
       console.log(err)
     })

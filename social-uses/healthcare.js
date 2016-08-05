@@ -18,7 +18,8 @@ let options = {
       node[amenity=doctors](${bboxOverpass});
       way[amenity=doctors](${bboxOverpass});>;);out body;`,
   'filename': 'data/healthcare.geojson',
-  'filterTags': ['amenity', 'name']
+  'filterTags': ['amenity', 'name'],
+  'enforceType': 'point'
 }
 
 osmData(options, __dirname)

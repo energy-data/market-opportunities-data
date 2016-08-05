@@ -86,3 +86,60 @@ test('filterProps handles an empty filterTags array', t => {
 
   t.deepEqual(utils.filterProps(data, []), result)
 })
+
+test('convertToPoints correctly converts polygons and lines to points', t => {
+  let data = {
+    'type': 'FeatureCollection',
+    'features': [
+      {
+        'type': 'Feature',
+        'properties': {
+          'amenity': 'doctors'
+        },
+        'geometry': {
+          'type': 'Polygon',
+          'coordinates': [
+            [[36.8065284, -1.294548], [36.8068074, -1.2944117], [36.8069526, -1.2947088], [36.8066736, -1.2948451], [36.8065284, -1.294548]]
+          ]
+        }
+      },
+      {
+        'type': 'Feature',
+        'properties': {
+          'amenity': 23
+        },
+        'geometry': {
+          'type': 'Point',
+          'coordinates': [ 36, -1 ]
+        }
+      }
+    ]
+  }
+  let result = {
+    'type': 'FeatureCollection',
+    'features': [
+      {
+        'type': 'Feature',
+        'properties': {
+          'amenity': 'doctors'
+        },
+        'geometry': {
+          'type': 'Point',
+          'coordinates': [ 36.8067405, -1.2946284000000001 ]
+        }
+      },
+      {
+        'type': 'Feature',
+        'properties': {
+          'amenity': 23
+        },
+        'geometry': {
+          'type': 'Point',
+          'coordinates': [ 36, -1 ]
+        }
+      }
+    ]
+  }
+
+  t.deepEqual(utils.convertToPoints(data), result)
+})
