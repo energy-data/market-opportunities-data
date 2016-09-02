@@ -7,7 +7,7 @@ const osmData = require('../tools/osm-data.js')
 const overpass = require('../tools/overpass.js')
 
 // Fetch the bbox for SSA
-const bboxOverpass = overpass.bboxSSA()
+const bboxOverpass = overpass.bbox()
 
 let options = {
   'query':
