@@ -34,24 +34,49 @@ module.exports.convertToPoints = function (data) {
 }
 
 /**
+ * Returns a bbox for one or more countries
+ *
+ * @param {Array} [iso] An array with ISO codes to determine the bbox for. If undefined, the bbox for all the features will be returned.
+ *
+ * @return {Array} An array with the bounding box [minX, minY, maxX, maxY]
+*/
+const countries = require('../lib/boundaries/ne_10m_admin0_ssa.json')
+module.exports.bbox = function (iso) {
+  if (iso) {
+    iso = _.isArray(iso) ? iso : [iso]
+    let filterCountries = countries.features.filter(
+      ft => _.includes(iso, ft.properties.ISO_A3.toLowerCase())
+    )
+
+    if (filterCountries.length !== iso.length) {
+      throw new Error(`At least one ISO code not found: ${iso.join(', ')}`)
+    }
+
+    return turf.bbox(turf.featureCollection(filterCountries))
+  } else {
+    return turf.bbox(countries)
+  }
+}
+
+/**
  * Generate a polygon grid of a specific amount of rows and columns from a bounding box
  *
  * @param {Array} bbox An Array of bounding box coordinates: [minX, minY, maxX, maxY]
- * @param {number} rows The number of rows of the resulting grid of polygons
  * @param {number} cols The number of columns of the resulting grid of polygons
+ * @param {number} rows The number of rows of the resulting grid of polygons
  *
  * @return {Object} A GeoJSON FeatureCollection with a grid of polygons
  */
-module.exports.generateGrid = function (bbox, rows, cols) {
-  const cellHeight = (bbox[3] - bbox[1]) / rows
+module.exports.generateGrid = function (bbox, cols, rows) {
   const cellWidth = (bbox[2] - bbox[0]) / cols
-  return turf.featureCollection(_.flatten(_.range(rows).map(a => {
-    return _.range(cols).map(b => {
+  const cellHeight = (bbox[3] - bbox[1]) / rows
+  return turf.featureCollection(_.flatten(_.range(cols).map(c => {
+    return _.range(rows).map(r => {
       return turf.bboxPolygon([
-        bbox[0] + (cellHeight * a),
-        bbox[1] + (cellWidth * b),
-        bbox[0] + (cellHeight * (a + 1)),
-        bbox[1] + (cellWidth * (b + 1))
+        bbox[0] + (cellWidth * c),
+        bbox[1] + (cellHeight * r),
+        bbox[0] + (cellWidth * (c + 1)),
+        bbox[1] + (cellHeight * (r + 1))
       ])
     })
   })))
