@@ -32,3 +32,27 @@ module.exports.convertToPoints = function (data) {
   })
   return data
 }
+
+/**
+ * Generate a polygon grid of a specific amount of rows and columns from a bounding box
+ *
+ * @param {Array} bbox An Array of bounding box coordinates: [minX, minY, maxX, maxY]
+ * @param {number} rows The number of rows of the resulting grid of polygons
+ * @param {number} cols The number of columns of the resulting grid of polygons
+ *
+ * @return {Object} A GeoJSON FeatureCollection with a grid of polygons
+ */
+module.exports.generateGrid = function (bbox, rows, cols) {
+  const cellHeight = (bbox[3] - bbox[1]) / rows
+  const cellWidth = (bbox[2] - bbox[0]) / cols
+  return turf.featureCollection(_.flatten(_.range(rows).map(a => {
+    return _.range(cols).map(b => {
+      return turf.bboxPolygon([
+        bbox[0] + (cellHeight * a),
+        bbox[1] + (cellWidth * b),
+        bbox[0] + (cellHeight * (a + 1)),
+        bbox[1] + (cellWidth * (b + 1))
+      ])
+    })
+  })))
+}
