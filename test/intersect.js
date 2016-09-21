@@ -1,5 +1,5 @@
 const test = require('ava')
-const intersect = require('../tools/lib/intersect.js')
+const intersect = require('../tools/intersect.js')
 const countries = require('./fixtures/countries.json')
 
 test('intersect.generate handles polygon inside polygon', t => {

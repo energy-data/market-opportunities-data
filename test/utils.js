@@ -1,5 +1,5 @@
 const test = require('ava')
-const utils = require('../tools/lib/utils.js')
+const utils = require('../tools/utils.js')
 
 var data = {
   'type': 'FeatureCollection',
