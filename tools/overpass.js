@@ -1,10 +1,8 @@
 'use strict'
 
-const _ = require('lodash')
-const rp = require('request-promise')
+const rp = require('request-promise-native')
 const osmGeojson = require('osmtogeojson')
-const turf = require('turf')
-const utils = require('./utils.js')
+const promiseRetry = require('promise-retry')
 
 /**
  * Queries Overpass and returns the data in GeoJSON format
@@ -13,15 +11,21 @@ const utils = require('./utils.js')
  */
 
 module.exports.query = function (query) {
-  let url = `http://overpass-api.de/api/interpreter?data=[out:json];${query}`
-  console.log('Fetching data from Overpass...')
-  return rp(url)
-    .catch(function (err) {
-      return (err)
-    })
-    .then(function (osmJSON) {
-      return osmGeojson(JSON.parse(osmJSON), { flatProperties: true })
-    })
+  return promiseRetry(function (retry, number) {
+    console.log(`Fetching data from Overpass... Attempt number: ${number}`)
+
+    return rp(`http://overpass-api.de/api/interpreter?data=[out:json];${query}`)
+      .catch(function (err) {
+        // API calls to Overpass are rate limited. Retry if statusCode is 429
+        if (err.statusCode === 429) {
+          retry(err)
+        }
+        throw err.message
+      })
+      .then(function (osmJSON) {
+        return osmGeojson(JSON.parse(osmJSON), { flatProperties: true })
+      })
+  })
 }
 
 /**

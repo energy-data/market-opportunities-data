@@ -32,8 +32,10 @@
     "osmtogeojson": "^2.2.11",
     "path": "^0.12.7",
     "pretty-ms": "^2.1.0",
+    "promise-retry": "^1.1.1",
     "rbush": "^2.0.1",
     "request-promise": "^3.0.0",
+    "request-promise-native": "^1.0.3",
     "through2": "^2.0.1",
     "turf": "^3.0.12"
   }
