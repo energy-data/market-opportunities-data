@@ -22,7 +22,7 @@ Used to differentiate between indicators (which can be manipulated by the user) 
 Provides additional information about how the indicator should be rendered, manipulated, etc. JSON object.
 
 - `geometry.type`: Description of the layer geometry. One of 'fill', 'line', 'circle'.
-- `value.type`: Description of how the indicator is edited by the user. One of 'range', 'categorical', 'buffer'.
+- `value.type`: Description of how the indicator is edited by the user. One of 'range', 'categorical', 'categorical-unique', 'buffer'.
 - `value.range`: Minimum and maximum values. Required if `value.type` is 'range' or 'buffer'. Array of length 2.
 - `value.property`: Property name on vector tile layer. Required if `value.type` is 'range' or 'categorical'. String
 - `value.stops`: Array of range breakpoints in the data. Used for creating the map layer color scheme and slider scales. Required if `value.type` is 'range'
