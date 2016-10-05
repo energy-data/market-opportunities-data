@@ -9,11 +9,11 @@
 const _ = require('lodash')
 const argv = require('minimist')(process.argv.slice(2))
 const fs = require('fs')
-var log = require('single-line-log').stdout
 const path = require('path')
 const turf = require('turf')
 
 const addIso = require('../tools/add-iso.js')
+const mergeFeatures = require('../tools/merge-features.js')
 const osmData = require('../tools/osm-data.js')
 const overpass = require('../tools/overpass.js')
 const utils = require('../tools/utils.js')
@@ -86,7 +86,7 @@ grid
 
       // check if the featureCollection has features to begin with
       try {
-        var totalFeats = fc.features.length
+        fc.features.length
       } catch (e) {
         if (e instanceof TypeError) {
           console.log(`Cell ${cellNumber} doesn't contain any features. Skipping...`)
@@ -96,30 +96,10 @@ grid
 
       // merge each featureCollection
       console.log(`Merging cell ${cellNumber} with a ${fc.buffer}km. buffer...`)
-      let startMerge = Date.now()
-      try {
-        let u = _.reduce(fc.features, (a, b, index) => {
-          log(`Merged: ${index + 1} of ${totalFeats}`)
-          try {
-            return turf.union(a, b)
-          } catch (e) {
-            // continue if the polygons can't be merged
-            console.log('Error trying to join feature.')
-            return a
-          }
-        })
-        // add an indication of the buffer size
-        try {
-          u.properties.buffer = fc.buffer
-        } catch (e) {
-          console.log(e)
-        }
-        log.clear()
-        console.log(`...done in ${Date.now() - startMerge}ms`)
-        return u
-      } catch (e) {
-        console.log(e)
-      }
+
+      let mergedFeature = mergeFeatures(fc)
+      mergedFeature.properties.buffer = fc.buffer
+      return mergedFeature
     })
   })
   .catch(function (err) {
