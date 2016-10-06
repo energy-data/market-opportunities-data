@@ -3,6 +3,8 @@
 const _ = require('lodash')
 const turf = require('turf')
 
+const countries = require('../lib/boundaries/ne_10m_admin0_ssa.json')
+
 /**
  * Filter the properties of a set of GeoJSON features
  *
@@ -16,6 +18,38 @@ module.exports.filterProps = function (data, filterTags) {
   })
   return data
 }
+
+/**
+ * Filter GeoJSON features by type
+ *
+ * @param {Object} data GeoJSON data
+ * @param {Array} filterTypes An array of GeoJSON feature types to filter by
+ */
+module.exports.filterByType = function (data, filterTypes) {
+  data.features = _.filter(data.features, f => f.geometry && filterTypes.indexOf(f.geometry.type) !== -1)
+  return data
+}
+
+/**
+ * Filter GeoJSON features by type
+ *
+ * @param {Object} data GeoJSON data
+ * @param {Array} filterTypes An array of GeoJSON feature types to filter by
+ */
+function getCountryPolygon (iso) {
+  iso = _.isArray(iso) ? iso : [iso]
+  let filterCountries = countries.features.filter(
+    ft => _.includes(iso, ft.properties.ISO_A3.toLowerCase())
+  )
+
+  if (filterCountries.length !== iso.length) {
+    throw new Error(`At least one ISO code not found: ${iso.join(', ')}`)
+  } else {
+    return filterCountries
+  }
+}
+
+module.exports.getCountryPolygon = getCountryPolygon
 
 /**
  * Convert all polygons and lines in a GeoJSON to their centroid
@@ -40,19 +74,9 @@ module.exports.convertToPoints = function (data) {
  *
  * @return {Array} An array with the bounding box [minX, minY, maxX, maxY]
 */
-const countries = require('../lib/boundaries/ne_10m_admin0_ssa.json')
 module.exports.bbox = function (iso) {
   if (iso) {
-    iso = _.isArray(iso) ? iso : [iso]
-    let filterCountries = countries.features.filter(
-      ft => _.includes(iso, ft.properties.ISO_A3.toLowerCase())
-    )
-
-    if (filterCountries.length !== iso.length) {
-      throw new Error(`At least one ISO code not found: ${iso.join(', ')}`)
-    }
-
-    return turf.bbox(turf.featureCollection(filterCountries))
+    return turf.bbox(turf.featureCollection(getCountryPolygon(iso)))
   } else {
     return turf.bbox(countries)
   }
