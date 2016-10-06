@@ -13,6 +13,7 @@ const path = require('path')
 const turf = require('turf')
 
 const addIso = require('../tools/add-iso.js')
+const filterRings = require('../tools/filter-inner-rings.js')
 const mergeFeatures = require('../tools/merge-features.js')
 const osmData = require('../tools/osm-data.js')
 const overpass = require('../tools/overpass.js')
@@ -101,6 +102,13 @@ grid
       mergedFeature.properties.buffer = fc.buffer
       return mergedFeature
     })
+  })
+  .catch(function (err) {
+    console.log(err)
+  })
+  .then(function (mergedData) {
+    // Remove the smaller inner rings (400 x 400m) to decrease file size and optimize performance
+    return _.map(mergedData, f => filterRings(f, 160000))
   })
   .catch(function (err) {
     console.log(err)
