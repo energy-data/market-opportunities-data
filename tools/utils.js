@@ -31,10 +31,9 @@ module.exports.filterByType = function (data, filterTypes) {
 }
 
 /**
- * Filter GeoJSON features by type
+ * Get the Polygon for a country
  *
- * @param {Object} data GeoJSON data
- * @param {Array} filterTypes An array of GeoJSON feature types to filter by
+ * @param {String} iso A sinle iso, or an array of iso codes
  */
 function getCountryPolygon (iso) {
   iso = _.isArray(iso) ? iso : [iso]
