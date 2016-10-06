@@ -1,6 +1,6 @@
 ## Transmission network data
 
-Run `$ bash process.sh` to download the transmission network data and generate a geojson.
+Run `$ bash process.sh` to download the transmission network data and generate a geojson. Only existing lines are kept in the data.
 
 ### Todo
 
