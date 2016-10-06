@@ -80,7 +80,7 @@ osmData(options)
     console.log('\nGenerate difference between country and buffer polygon\n')
     return _.map(mergedData, f => {
       let ft = turf.difference(countryPolygon[0], f)
-      ft.properties.buffer = `${f.buffer}km to grid`
+      ft.properties.buffer = `${f.buffer}km from grid`
       ft.properties.iso = iso
       return ft
     })
