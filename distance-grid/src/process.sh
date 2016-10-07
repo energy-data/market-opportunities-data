@@ -44,6 +44,6 @@ $cmd_unzip -q -o $TMP_DIR/$DL_FILE -d $TMP_DIR
 
 # Convert to geojson. If the geojson already exists, it will NOT be overwritten
 echo "Convert Shapefile to GeoJSON"
-$cmd_ogr2ogr -where "'STATUS' = 'Existing'" -f "GeoJSON" aicd-grid-network.geojson "$TMP_DIR/$SRC_FILE"
+$cmd_ogr2ogr -where "'STATUS' = 'Existing'" -f "GeoJSON" aicd-grid-network.json "$TMP_DIR/$SRC_FILE"
 
 rm -r $TMP_DIR

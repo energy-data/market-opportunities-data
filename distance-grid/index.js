@@ -15,24 +15,35 @@ const mergeFeatures = require('../tools/merge-features.js')
 const overpass = require('../tools/overpass.js')
 const utils = require('../tools/utils.js')
 
-const iso = argv.iso
+const aicdNetwork = require('./src/aicd-grid-network.json')
 
-// Fetch the bbox
-const bbox = overpass.bbox(utils.bbox(iso))
+const iso = argv.iso
+const bbox = utils.bbox(iso)
+const overpassBbox = overpass.bbox(bbox)
 const countryPolygon = utils.getCountryPolygon(iso)
 
 let options = {
   'bufferDistances': [5, 15, 30],
   'country': iso,
   'query':
-    `(way[power=minor_line](${bbox});
-      way[power=line](${bbox});>;);out body;`,
+    `(way[power=minor_line](${overpassBbox});
+      way[power=line](${overpassBbox});>;);out body;`,
   'filterTypes': ['LineString', 'MultiLineString'],
   'filterTags': [],
   'filename': `data/osm-power-${argv.iso}.geojson`
 }
 
 osmData(options)
+  .then(function (data) {
+    console.log('Merging OSM data with AfDB grid data...')
+    // add grid data from the AfDB that intersects with the country bbox
+    for (let f of aicdNetwork.features) {
+      if (f.geometry && turf.intersect(countryPolygon[0], f)) {
+        data.features.push(f)
+      }
+    }
+    return data
+  })
   .then(function (data) {
     console.log('Buffering data...')
 
@@ -51,7 +62,7 @@ osmData(options)
   })
   .then(function (buffData) {
     // return an array of features with merged data
-    console.log('Starting the merge. This may take a very long time')
+    console.log('Starting the merge. This may take a long time')
     return _.map(buffData, (fc, i) => {
       // check if the featureCollection has features to begin with
       try {
@@ -89,6 +100,6 @@ osmData(options)
     console.log(err)
   })
   .then(function (mergedData) {
-    // TMP writing merged data to file for addIso
+    console.log(`Writing results to ${path.join(__dirname, options.filename)}`)
     fs.writeFileSync(path.join(__dirname, options.filename), JSON.stringify(turf.featureCollection(mergedData)))
   })
