@@ -27,6 +27,7 @@ Provides additional information about how the indicator should be rendered, mani
 - `value.property`: Property name on vector tile layer. Required if `value.type` is 'range' or 'categorical'. String
 - `value.stops`: Array of range breakpoints in the data. Used for creating the map layer color scheme and slider scales. Required if `value.type` is 'range'
 - `value.format`: Optional string providing additional formatting options. Only current option is `percentage`
+- `countries`: Optional array to restrict data layer to loading in certain countries. All countries will attempt to load this layer if this property is not provided. Countries must be provided as lowercase, three character iso codes.
 
 Example:
 
@@ -39,5 +40,6 @@ Example:
     "type": "buffer",
     "range": [1, 100],
     "value": 1
-   }
+   },
+   "countries": ["nga", "tza"]
  }
