@@ -30,7 +30,7 @@ const turf = require('turf')
  * //=LinearRings
  */
 function filterRings (coordinates, minArea) {
-  return coordinates.filter((ring, i) => i === 0 || turf.area(turf.helpers.polygon([ring])) > minArea)
+  return coordinates.filter((ring, i) => i === 0 || turf.area(turf.polygon([ring])) > minArea)
 }
 
 /**

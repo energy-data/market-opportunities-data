@@ -56,7 +56,7 @@ const addIso = function (srcData, destPath, cb) {
     .pipe(stringify)
     .pipe(write)
     .on('finish', () => {
-      console.log('Adding the ISO codes finished in: ', prettyMs(Date.now() - start))
+      console.log('done in', prettyMs(Date.now() - start))
       if (cb) cb()
     })
 }

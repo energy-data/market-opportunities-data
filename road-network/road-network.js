@@ -22,7 +22,8 @@ const utils = require('../tools/utils.js')
 const options = {
   'bufferDistances': [1, 2, 5],
   'country': argv.iso,
-  'filename': `data/road-network-${argv.iso}.geojson`
+  'filename': `data/road-network-${argv.iso}.geojson`,
+  'filterTypes': ['LineString', 'MultiLineString']
 }
 
 const grid = new Promise(function (resolve, reject) {
@@ -32,6 +33,7 @@ const grid = new Promise(function (resolve, reject) {
     resolve(utils.generateGrid(utils.bbox(options.country), argv.col, argv.row))
   }
 })
+var startTime
 
 // generate a grid for the country's bbox
 grid
@@ -56,32 +58,45 @@ grid
     }))
   })
   .then(function (data) {
-    console.log('Buffering data...')
+    startTime = Date.now()
+    console.log('\nSimplifying the lines...')
+    return _.map(data, fc => turf.simplify(fc, 0.01, false))
+  })
+  .then(function (data) {
+    console.log(`done in ${Date.now() - startTime}ms`)
+    console.log('\nBuffering data...')
 
-    // create an array of 'tuples' with the index of the geoJSON array and the buffer distance
-    // [ [0, 2], [0, 4], [1, 2], [1, 4], etc ]
-    let toBuffer = _.flatten(_.range(data.length).map(i => {
-      return _.map(options.bufferDistances, d => [i, d])
-    }))
+    return Promise.resolve(grid)
+      .then(function (grid) {
+        // create an array of 'tuples' with the index of the geoJSON array and the buffer distance
+        // [ [0, 2], [0, 4], [1, 2], [1, 4], etc ]
+        let toBuffer = _.flatten(_.range(data.length).map(i => {
+          return _.map(options.bufferDistances, d => [i, d])
+        }))
 
-    // return an array with GeoJSON feature collections. Each of these
-    // collections has data from a grid cell, buffered with a particular buffer
-    // distance.
-    // 2 grid cells and 3 buffer distances result in an array
-    // 6 FC's
-    let buffedData = _.map(toBuffer, i => {
-      let b = turf.buffer(data[i[0]], i[1], 'kilometers')
-      b.buffer = i[1]
-      return b
-    })
-    return buffedData
+        // return an array with GeoJSON feature collections. Each of these
+        // collections has data from a grid cell, buffered with a particular buffer
+        // distance.
+        // 2 grid cells and 3 buffer distances result in an array
+        // 6 FC's
+        let buffedData = toBuffer.map(i => {
+          let b = turf.featureCollection(data[i[0]].features.map(f =>
+            turf.intersect(grid.features[i[0]], turf.buffer(f, i[1], 'kilometers')
+          )))
+          b.buffer = i[1]
+          return b
+        })
+        return buffedData
+      })
   })
   .catch(function (err) {
     console.log(err)
   })
   .then(function (buffData) {
+    console.log(`done in ${Date.now() - startTime}ms`)
+
     // return an array of featureCollections with merged data
-    console.log('Starting the merge. This may take a very long time')
+    console.log('\nMerging all features in a cell with same buffer distance. This may take a long time')
     return _.map(buffData, (fc, i) => {
       let cellNumber = Math.floor(i / options.bufferDistances.length) + 1
 
@@ -90,16 +105,16 @@ grid
         fc.features.length
       } catch (e) {
         if (e instanceof TypeError) {
-          console.log(`Cell ${cellNumber} doesn't contain any features. Skipping...`)
+          console.log(`\nCell ${cellNumber} doesn't contain any features. Skipping...`)
         }
         return fc
       }
 
       // merge each featureCollection
-      console.log(`Merging cell ${cellNumber} with a ${fc.buffer}km. buffer...`)
+      console.log(`\nMerging cell ${cellNumber} with a ${fc.buffer}km. buffer...`)
 
       let mergedFeature = mergeFeatures(fc)
-      mergedFeature.properties.buffer = fc.buffer
+      mergedFeature.properties.buffer = `${fc.buffer}km to road`
       return mergedFeature
     })
   })
@@ -107,13 +122,17 @@ grid
     console.log(err)
   })
   .then(function (mergedData) {
-    // Remove the smaller inner rings (400 x 400m) to decrease file size and optimize performance
-    return _.map(mergedData, f => filterRings(f, 160000))
+    console.log(`\ndone in ${Date.now() - startTime}ms`)
+    let minArea = 1000000
+    console.log(`\nFiltering out areas < ${minArea / 1000000}km2 to optimize performance`)
+    // Remove the smaller inner rings (1km2) to decrease file size and optimize performance
+    return _.map(mergedData, f => filterRings(f, minArea))
   })
   .catch(function (err) {
     console.log(err)
   })
   .then(function (mergedData) {
+    console.log(`done in ${Date.now() - startTime}ms`)
     // TMP writing merged data to file for addIso
     fs.writeFileSync(path.join(__dirname, 'data/tmp.geojson'), JSON.stringify(turf.featureCollection(mergedData)))
   })
