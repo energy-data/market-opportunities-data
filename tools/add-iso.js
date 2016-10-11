@@ -13,11 +13,11 @@ const geojsonStream = require('geojson-stream')
 const path = require('path')
 const through2 = require('through2')
 const prettyMs = require('pretty-ms')
-const intersect = require('./lib/intersect.js')
-const spatialIndex = require('./lib/spatial-index.js')
+const intersect = require('./intersect.js')
+const spatialIndex = require('./spatial-index.js')
 const countries = require('../lib/boundaries/ne_10m_admin0_ssa.json')
 
-const addIso = function (srcData, destPath) {
+const addIso = function (srcData, destPath, cb) {
   // Some simple counters to keep track of progress
   var featsProcessed = 0
   var featsCreated = 0
@@ -56,7 +56,8 @@ const addIso = function (srcData, destPath) {
     .pipe(stringify)
     .pipe(write)
     .on('finish', () => {
-      console.log('Adding the ISO codes finished in: ', prettyMs(Date.now() - start))
+      console.log('done in', prettyMs(Date.now() - start))
+      if (cb) cb()
     })
 }
 

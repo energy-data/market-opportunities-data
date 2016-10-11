@@ -1,5 +1,5 @@
 const test = require('ava')
-const utils = require('../tools/lib/utils.js')
+const utils = require('../tools/utils.js')
 
 var data = {
   'type': 'FeatureCollection',
@@ -85,6 +85,48 @@ test('filterProps handles an empty filterTags array', t => {
   }
 
   t.deepEqual(utils.filterProps(data, []), result)
+})
+
+test('filterByType filters features by geometry type', t => {
+  let data = {
+    'type': 'FeatureCollection',
+    'features': [
+      {
+        'type': 'Feature',
+        'properties': {
+        },
+        'geometry': {
+          'type': 'Point',
+          'coordinates': [10, 10]
+        }
+      },
+      {
+        'type': 'Feature',
+        'properties': {
+        },
+        'geometry': {
+          'type': 'LineString',
+          'coordinates': [9, 9]
+        }
+      }
+    ]
+  }
+  let result = {
+    'type': 'FeatureCollection',
+    'features': [
+      {
+        'type': 'Feature',
+        'properties': {
+        },
+        'geometry': {
+          'type': 'LineString',
+          'coordinates': [9, 9]
+        }
+      }
+    ]
+  }
+
+  t.deepEqual(utils.filterByType(data, ['LineString']), result)
 })
 
 test('convertToPoints correctly converts polygons and lines to points', t => {

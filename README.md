@@ -1,9 +1,11 @@
-## IFC Demand Data
-A repo with processing scripts for datasets that will power the [IFC Demand Tool](https://github.com/developmentseed/ifc-demand-tool).
+## Market Opportunities Data
+A set of processing scripts for datasets that power the [Offgrid Market Opportunities Tool](https://github.com/energy-data/market-opportunities-data). This tool expects datasets to be uploaded to [energydata.info](http://energydata.info) in GeoJSON. Each feature in the dataset needs to have the [3-letter ISO code](https://en.wikipedia.org/wiki/ISO_3166-1_alpha-3) of the country in the properties object.
 
-### Special Instructions
+The scripts in this repository each take a slightly different approach, depending on the type of processing needed. Some of them may take long to complete.
 
-After uploading data to CKAN, there are three custom fields that need to be populated for the data to show up in the tool.
+### Adding data to the tool
+After uploading data to [energydata.info](http://energydata.info), there are three custom fields that need to be populated for the data to show up in the tool.
+
 
 <img src="custom-fields.png" width="400"/>
 
