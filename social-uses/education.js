@@ -10,26 +10,28 @@ const path = require('path')
 const turf = require('turf')
 
 const addIso = require('../tools/add-iso.js')
+const utils = require('../tools/utils.js')
 
 // Fetch the bbox for SSA
-const bboxOverpass = overpass.bbox()
+const bbox = utils.bbox('nga')
+const overpassBbox = overpass.bbox(bbox)
 
 let options = {
   'query':
-    `(node[amenity=college](${bboxOverpass});
-      way[amenity=college](${bboxOverpass});
-      node[amenity=kindergarten](${bboxOverpass});
-      way[amenity=kindergarten](${bboxOverpass});
-      node[amenity=school](${bboxOverpass});
-      way[amenity=school](${bboxOverpass});
-      node[amenity=university](${bboxOverpass});
-      way[amenity=university](${bboxOverpass});>;);out body;`,
+    `(node[amenity=college](${overpassBbox});
+      way[amenity=college](${overpassBbox});
+      node[amenity=kindergarten](${overpassBbox});
+      way[amenity=kindergarten](${overpassBbox});
+      node[amenity=school](${overpassBbox});
+      way[amenity=school](${overpassBbox});
+      node[amenity=university](${overpassBbox});
+      way[amenity=university](${overpassBbox});>;);out body;`,
   'filename': 'data/education.geojson',
   'filterTags': ['amenity', 'name'],
   'enforceType': 'point'
 }
 
-osmData(options, __dirname)
+osmData(options)
   .then(function (data) {
     console.log('Writing merged data to files...')
     // TODO. No need to write to file, could stream directly to add-iso
